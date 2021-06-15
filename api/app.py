@@ -4,12 +4,12 @@ from flask_cors import CORS, cross_origin
 app = Flask(__name__)
 
 # Enable Cross-Origin Requests
-CORS(app)
+CORS(app, supports_credentials=True)
 
-# Routing Management
-@app.route('/api/', methods=['POST'])
-@cross_origin(supports_credentials=True)
-def sign_up():
+
+@app.route('/api/message', methods=['POST', 'GET', 'OPTIONS'])
+def message():
+    data = request.get_json()
     return jsonify({'result': 'fail'})
 
 

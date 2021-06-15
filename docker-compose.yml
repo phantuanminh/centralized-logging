@@ -1,22 +1,38 @@
 version: "3.7"
 
 services:
+  # client-next:
+  #   build:
+  #     context: ./client-next
+  #     dockerfile: Dockerfile
+  #   tty: true
+  #   ports:
+  #     - "3001:3001"
+  #   environment:
+  #     - NODE_ENV=development
+  #     - REACT_APP_SERVICE_URL=http://localhost:8080
+  #     - CHOKIDAR_USEPOLLING=true
+  #   volumes:
+  #     - ./client:/app
+  #     - ./client/node_modules:/app/node_modules
+
   client:
     build:
-      context: ./front-end
+      context: ./client
       dockerfile: Dockerfile
     tty: true
     ports:
       - "3000:3000"
     volumes:
-      - ./front-end:/app
-      - ./front-end/node_modules:/app/node_modules
+      - ./client:/app
+      - ./client/node_modules:/app/node_modules
     networks:
-      - front-end
+      - client
+      - api
 
   api:
     build:
-      context: ./back-end
+      context: ./api
       dockerfile: Dockerfile
     command: gunicorn --bind 0.0.0.0:5000 app:app
     ports:
@@ -24,14 +40,26 @@ services:
     volumes:
       - appdata:/var/www/
     networks:
-      - front-end
-      - back-end
+      - api
+      - client
+
+  # nginx:
+  #   build:
+  #     context: ./nginx
+  #     dockerfile: Dockerfile
+  #   restart: unless-stopped
+  #   ports:
+  #     - 8080:8080
+  #   depends_on:
+  #     - api
+  #     - client
 
 networks:
-  front-end:
+  client:
     driver: bridge
-  back-end:
+  api:
     driver: bridge
+
 volumes:
   appdata:
     driver: local
