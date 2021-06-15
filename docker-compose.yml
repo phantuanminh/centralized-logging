@@ -1,0 +1,37 @@
+version: "3.7"
+
+services:
+  client:
+    build:
+      context: ./front-end
+      dockerfile: Dockerfile
+    tty: true
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./front-end:/app
+      - ./front-end/node_modules:/app/node_modules
+    networks:
+      - front-end
+
+  api:
+    build:
+      context: ./back-end
+      dockerfile: Dockerfile
+    command: gunicorn --bind 0.0.0.0:5000 app:app
+    ports:
+      - "5000:5000"
+    volumes:
+      - appdata:/var/www/
+    networks:
+      - front-end
+      - back-end
+
+networks:
+  front-end:
+    driver: bridge
+  back-end:
+    driver: bridge
+volumes:
+  appdata:
+    driver: local
