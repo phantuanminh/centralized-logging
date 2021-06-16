@@ -17,7 +17,7 @@ def message():
     # Initiate Producer
     producer = KafkaProducer(bootstrap_servers=['192.168.1.40:9091'])
     producer.send(topic=data['topic'],
-                  partition=data['partition'], value=data['message'].tobytes())
+                  partition=data['partition'], value=str.encode(data['message']))
     sleep(0.5)
 
     return jsonify({'result': 'fail'})
