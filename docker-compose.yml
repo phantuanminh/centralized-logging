@@ -84,6 +84,37 @@ services:
     networks:
       - kafka-cluster-network
 
+  random-logger:
+    build:
+      context: ./random-logger
+      dockerfile: Dockerfile
+    ports:
+      - 1234:1234
+
+  clickhouse:
+    image: yandex/clickhouse-server:20.4
+    hostname: clickhouse
+    container_name: clickhouse
+    ports:
+      # Default port for HTTP interfaces (https://clickhouse.yandex/docs/en/interfaces/http_interface/)
+      - "8123::8123"
+      # Default port for native client (https://clickhouse.yandex/docs/en/interfaces/tcp/)
+      # - "9000:9000"
+  #    volumes:
+  #      - /tmp/clickhouse/data:/var/lib/clickhouse
+  #      - /tmp/clickhouse/log:/var/log/clickhouse-server
+  #      - /tmp/clickhouse-config.xml:/etc/clickhouse-server/config.xml
+  # Zookeeper is required for replicated tables (https://clickhouse.tech/docs/en/operations/table_engines/replication/)
+  #    depends_on:
+  #      - zookeeper
+
+  superset:
+    image: amancevice/superset:latest
+    hostname: superset
+    container_name: superset
+    ports:
+      - "8080:8088"
+
 networks:
   client:
     driver: bridge
