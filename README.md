@@ -13,8 +13,14 @@ $ sudo docker exec -it kafka-broker kafka-topics \
 --zookeeper 192.168.1.40:2181 \
 --create \
 --topic readings \
---partitions 4 \
+--partitions 6 \
 --replication-factor 1
+```
+
+```bash
+$ sudo docker exec -it kafka-broker kafka-topics \
+--zookeeper 192.168.1.40:2181 \
+--describe readings
 ```
 
 ## Configure ClickHouse to receive data from Kafka
