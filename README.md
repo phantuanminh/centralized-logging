@@ -25,9 +25,10 @@ Notes:
 <b>1. Mechanism A:</b> Transmits all logging messages from multiple services (Docker Containers) to Kafka.
 
 - First, we need to figure out how Docker handle its logging -> [Docker Logging Driver](https://docs.docker.com/config/containers/logging/configure/).
-- I propose 2 possible solutions:
+- I propose 3 possible solutions:
   - [Moby Kafka Logdriver](https://github.com/MickayG/moby-kafka-logdriver): A Docker plugin that works as a logdriver, transmit all log messages to Kafka.
-  - Rsyslog: Transmit all log messages to a rsyslog server, then rsyslog decides where the messages go.
+  - Rsyslog: Transmit all log messages to a rsyslog server, then rsyslog decides where the messages go. [Rsyslog Project For Kafka](https://github.com/JPvRiel/docker-rsyslog)
+  - Other ways than Moby to configure a custom logging mechanism for all services, each service would work like a producer.
 
 <b>2. Mechanism B:</b> Configure ClickHouse to automatically receive data from Kafka.
 
