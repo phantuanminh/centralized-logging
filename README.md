@@ -1,4 +1,47 @@
-# Data Streaming System with Kafka and ClickHouse
+# Centralized Logging System for Docker Containers
+
+## I. General Structure
+
+```
+            Mechanism        Mechanism            Mechanism
+                A                B                    C
+                |                |                    |
+> Service 1 --------  Zookeeper  |                    |
+                    \    &       |                    |
+> Service 2 ---------> Kafka --------> ClickHouse -------> Superset
+                    /(Rsyslog)
+> Service n --------
+
+```
+
+Notes:
+
+- Each service represents a Docker Container.
+- Zookeeper is a MUST for Kafka. [Why?](https://stackoverflow.com/questions/23751708/is-zookeeper-a-must-for-kafka)
+- To save space, we can try to run Zookeeper, Kafka, ClickHouse, Superset in a single container.
+
+## II. General Mechanism Discussion
+
+<b>1. Mechanism A:</b> Transmits all logging messages from multiple services (Docker Containers) to Kafka.
+
+- First, we need to figure out how Docker handle its logging -> [Docker Logging Driver](https://docs.docker.com/config/containers/logging/configure/).
+- I propose 2 possible solutions:
+  - [Moby Kafka Logdriver](https://github.com/MickayG/moby-kafka-logdriver): A Docker plugin that works as a logdriver, transmit all log messages to Kafka.
+  - Rsyslog: Transmit all log messages to a rsyslog server, then rsyslog decides where the messages go.
+
+<b>2. Mechanism B:</b> Configure ClickHouse to automatically receive data from Kafka.
+
+> Check out this really helpful tutorial: [Link](https://altinity.com/blog/2020/5/21/clickhouse-kafka-engine-tutorial)
+
+![Structure](https://altinity.com/wp-content/uploads/2020/07/Screenshotfrom2020-05-1420-53-15.png)
+
+<b>3. Mechanism C:</b> Configure Superset to visualize ClickHouse data
+
+- Setup Superset User Interface. Use the interface to connect to ClickHouse URI -> Then it's all done!
+
+## III. Demo
+
+## IGNORE TEXT BELOW
 
 ## Run Kafka, ClickHouse and other services in the tutorial
 
