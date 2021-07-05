@@ -105,7 +105,7 @@ Notes:
       temperature Decimal(5,2)
   )
   ENGINE = Kafka
-  SETTINGS kafka_broker_list = '192.168.1.40:9091',
+  SETTINGS kafka_broker_list = '{YOUR_MACHINE_IP_ADDRESS}:9091',
       kafka_topic_list = 'readings',
       kafka_group_name = 'readings_consumer_group1',
       kafka_format = 'CSV',
@@ -124,7 +124,7 @@ Notes:
 
   ```bash
   sudo docker exec -it kafka-broker kafka-console-producer \
-  --broker-list 192.168.1.40:9091 \
+  --broker-list {YOUR_MACHINE_IP_ADDRESS}:9091 \
   --topic readings
   ```
 
