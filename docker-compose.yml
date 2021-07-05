@@ -1,59 +1,6 @@
 version: "3.7"
 
 services:
-  # client-next:
-  #   build:
-  #     context: ./client-next
-  #     dockerfile: Dockerfile
-  #   tty: true
-  #   ports:
-  #     - "3001:3001"
-  #   environment:
-  #     - NODE_ENV=development
-  #     - REACT_APP_SERVICE_URL=http://localhost:8080
-  #     - CHOKIDAR_USEPOLLING=true
-  #   volumes:
-  #     - ./client:/app
-  #     - ./client/node_modules:/app/node_modules
-
-  client:
-    build:
-      context: ./client
-      dockerfile: Dockerfile
-    tty: true
-    ports:
-      - "3000:3000"
-    volumes:
-      - ./client:/app
-      - ./client/node_modules:/app/node_modules
-    networks:
-      - client
-      - api
-
-  api:
-    build:
-      context: ./api
-      dockerfile: Dockerfile
-    command: gunicorn --bind 0.0.0.0:5000 app:app
-    ports:
-      - "5000:5000"
-    volumes:
-      - appdata:/var/www/
-    networks:
-      - api
-      - client
-
-  # nginx:
-  #   build:
-  #     context: ./nginx
-  #     dockerfile: Dockerfile
-  #   restart: unless-stopped
-  #   ports:
-  #     - 8080:8080
-  #   depends_on:
-  #     - api
-  #     - client
-
   kafka-broker:
     image: confluentinc/cp-kafka:5.0.1
     hostname: kafka-broker
@@ -117,10 +64,6 @@ services:
       - "8080:8088"
 
 networks:
-  client:
-    driver: bridge
-  api:
-    driver: bridge
   kafka-cluster-network:
     driver: bridge
     name: kafka-cluster-network
