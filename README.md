@@ -42,104 +42,113 @@ Notes:
 
 ## III. Demo
 
-## IGNORE TEXT BELOW
+> In order to properly test Mechanism A, we should have already setted up and test Mechanism B and C, so let's set up the latter part first.
 
-## Run Kafka, ClickHouse and other services in the tutorial
+<b> 1. Mechanism B </b>
 
-```bash
-$ sudo docker-compose up
-```
+- Run Kafka & Zookeeper, ClickHouse, Superset:
 
-## Create a Kafka topic
+  ```bash
+  $ sudo docker-compose up -d
+  ```
 
-```bash
-$ sudo docker exec -it kafka-broker kafka-topics \
---zookeeper 192.168.1.40:2181 \
---create \
---topic readings \
---partitions 6 \
---replication-factor 1
-```
+- Init a variable as your machine IP address:
 
-```bash
-$ sudo docker exec -it kafka-broker kafka-topics \
---zookeeper 192.168.1.40:2181 \
---describe readings
-```
+  ```bash
+  $ IP_ADDRESS = {YOUR_MACHINE_IP_ADDRESS}
+  ```
 
-## Configure ClickHouse to receive data from Kafka
+  ```bash
+  $ sudo docker exec -it kafka-broker kafka-topics \
+  --zookeeper $IP_ADDRESS:2181 \
+  --create \
+  --topic readings \
+  --partitions 6 \
+  --replication-factor 1
+  ```
 
-![Structure](https://altinity.com/wp-content/uploads/2020/07/Screenshotfrom2020-05-1420-53-15.png)
+- Check if the topic is created or not:
 
-### Open ClickHouse CLI
+  ```bash
+  $ sudo docker exec -it kafka-broker kafka-topics \
+  --zookeeper $IP_ADDRESS:2181 \
+  --describe readings
+  ```
 
-```bash
-$ sudo docker exec -it clickhouse bin/bash -c "clickhouse-client --multiline"
-```
+- Configure ClickHouse to receive data from Kafka
 
-1. Create a MergeTree Table
+  ![Structure](https://altinity.com/wp-content/uploads/2020/07/Screenshotfrom2020-05-1420-53-15.png)
 
-```bash
-CREATE TABLE readings (
-    readings_id Int32 Codec(DoubleDelta, LZ4),
-    time DateTime Codec(DoubleDelta, LZ4),
-    date ALIAS toDate(time),
-    temperature Decimal(5,2) Codec(T64, LZ4)
-) Engine = MergeTree
-PARTITION BY toYYYYMM(time)
-ORDER BY (readings_id, time);
-```
+- Open ClickHouse CLI
 
-2. Create Kafka Table Engine
+  ```bash
+  $ sudo docker exec -it clickhouse bin/bash -c "clickhouse-client --multiline"
+  ```
 
-```bash
-CREATE TABLE readings_queue (
-    readings_id Int32,
-    time DateTime,
-    temperature Decimal(5,2)
-)
-ENGINE = Kafka
-SETTINGS kafka_broker_list = '192.168.1.40:9091',
-       kafka_topic_list = 'readings',
-       kafka_group_name = 'readings_consumer_group1',
-       kafka_format = 'CSV',
-       kafka_max_block_size = 1048576;
-```
+  ```bash
+  # Create a MergeTree Table
+  CREATE TABLE readings (
+      readings_id Int32 Codec(DoubleDelta, LZ4),
+      time DateTime Codec(DoubleDelta, LZ4),
+      date ALIAS toDate(time),
+      temperature Decimal(5,2) Codec(T64, LZ4)
+  ) Engine = MergeTree
+  PARTITION BY toYYYYMM(time)
+  ORDER BY (readings_id, time);
+  ```
 
-3. Create a materialized view to transfer data between Kafka and the merge tree table
+  ```bash
+  # Create Kafka Table Engine
+  CREATE TABLE readings_queue (
+      readings_id Int32,
+      time DateTime,
+      temperature Decimal(5,2)
+  )
+  ENGINE = Kafka
+  SETTINGS kafka_broker_list = '192.168.1.40:9091',
+      kafka_topic_list = 'readings',
+      kafka_group_name = 'readings_consumer_group1',
+      kafka_format = 'CSV',
+      kafka_max_block_size = 1048576;
+  ```
 
-```bash
-CREATE MATERIALIZED VIEW readings_queue_mv TO readings AS
-SELECT readings_id, time, temperature
-FROM readings_queue;
-```
+  ```bash
+  # Create a materialized view to transfer data
+  # between Kafka and the merge tree table
+  CREATE MATERIALIZED VIEW readings_queue_mv TO readings AS
+  SELECT readings_id, time, temperature
+  FROM readings_queue;
+  ```
 
-4. Test the setup by producing some messages
+- Test the setup by producing some messages
 
-```bash
-sudo docker exec -it kafka-broker kafka-console-producer \
---broker-list 192.168.1.40:9091 \
---topic readings
+  ```bash
+  sudo docker exec -it kafka-broker kafka-console-producer \
+  --broker-list 192.168.1.40:9091 \
+  --topic readings
+  ```
 
-# Data
-1,"2020-05-16 23:55:44",14.2
-2,"2020-05-16 23:55:45",20.1
-3,"2020-05-16 23:55:51",12.9
-```
+  ```
+  # Data
+  1,"2020-05-16 23:55:44",14.2
+  2,"2020-05-16 23:55:45",20.1
+  3,"2020-05-16 23:55:51",12.9
+  ```
 
-## Configure ClickHouse on Superset
+<b> 2. Mechanism C </b>
 
 1. Register a root ClickHouse account
 
-```bash
-$ sudo docker exec -it superset superset-init
-```
+   ```bash
+   $ sudo docker exec -it superset superset-init
+   ```
 
 2. Connect to ClickHouse
 
-- Use the UI at localhost:8080
-- Add Clickhouse URI to Superset: clickhouse://clickhouse:8123
+   - Use the UI at localhost:8080
+   - Add Clickhouse URI to Superset: clickhouse://clickhouse:8123
+   - Then you should be able to visualize some ClickHouse Tables
 
-## Source
+## Reference
 
-https://altinity.com/blog/2020/5/21/clickhouse-kafka-engine-tutorial
+- https://altinity.com/blog/2020/5/21/clickhouse-kafka-engine-tutorial
