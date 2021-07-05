@@ -20,7 +20,21 @@ Notes:
 - Zookeeper is a MUST for Kafka. [Why?](https://stackoverflow.com/questions/23751708/is-zookeeper-a-must-for-kafka)
 - To save space, we can try to run Zookeeper, Kafka, ClickHouse, Superset in a single container.
 
-## II. General Mechanism Discussion
+## II. Framework / Services Introduction
+
+> Let's have a brief introduction about some of the framework we might be using, and why they could possibly help.
+
+- [Kafka](https://kafka.apache.org/):
+  - Kafka is an open source software which provides a framework for storing, reading and analysing streaming data.
+  - We can use Kafka to distribute log messages from multiple services.
+  - Multiple Kafka nodes should be used in deployment, and Zookeeper is mandatory to help manage Kafka nodes. Read more about Zookeeper here: https://zookeeper.apache.org/
+- [ClickHouse](https://clickhouse.tech/)
+  - ClickHouse is a fast open-source OLAP database management system.
+  - We can benefit from ClickHouse Kafka Engine (which helps to connect with Kafka) and ClickHouse connection with Superset.
+- [Superset](https://superset.apache.org/)
+  - For visualizing data.
+
+## III. Mechanism Discussion
 
 <b>1. Mechanism A:</b> Transmits all logging messages from multiple services (Docker Containers) to Kafka.
 
@@ -40,7 +54,7 @@ Notes:
 
 - Setup Superset User Interface. Use the interface to connect to ClickHouse URI -> Then it's all done!
 
-## III. Demo
+## IV. Demo
 
 > In order to properly test Mechanism A, we should have already setted up and test Mechanism B and C, so let's set up the latter part first.
 
