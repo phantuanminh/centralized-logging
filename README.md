@@ -241,6 +241,7 @@ SETTINGS kafka_broker_list = '192.168.1.40:9091',
     kafka_topic_list = 'service_1',
     kafka_group_name = 'service_1_consumer_1',
     kafka_format = 'JSONEachRow',
+    kafka_row_delimiter = '\n',
     kafka_max_block_size = 1048576;
 ```
 
@@ -279,6 +280,14 @@ FROM service_1_queue;
    - Use the UI at localhost:8080
    - Add Clickhouse URI to Superset: clickhouse://clickhouse:8123
    - Then you should be able to visualize some ClickHouse Tables
+
+## Issues
+
+To summarize, 3 things that I was not able to do yet includes:
+
+- Making ClickHouse handle JSON messages from Kafka (JSON mapping)
+- Merging all logging services into 1 logging container, so the demo is still using 4 containers: Kafka, Zookeeper, ClickHouse, Superset.
+- Fix the Superset - ClickHouse bug: Superset can connect to ClickHouse just fine, can recognize the table, but data on the table is always empty? Although the table is actually NOT empty.
 
 ## Reference
 
