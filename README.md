@@ -217,31 +217,46 @@ $ sudo docker exec -it clickhouse bin/bash -c "clickhouse-client --multiline"
 ```
 
 <b> Important: Repeat this design for each service, below is a demo for service_1 </b>
+<b> JSONEachRow </b>
 
 ```bash
 # Create a MergeTree Table
 CREATE TABLE service_1 (
-    line String,
-    source String,
-    timestamp DateTime Codec(DoubleDelta, LZ4)
+    time DateTime Codec(DoubleDelta, LZ4),
+    Line String,
+    level String,
+    message String,
+    Source String,
+    Timestamp String,
+    Partial String,
+    ContainerName String,
+    ContainerImageName String,
+    ContainerImageId String,
+    Err String
 ) Engine = MergeTree
-PARTITION BY toYYYYMM(timestamp)
-ORDER BY (timestamp);
+PARTITION BY toYYYYMM(time)
+ORDER BY (time);
 ```
 
 ```bash
 # Create Kafka Table Engine
 CREATE TABLE service_1_queue (
-    line String,
-    source String,
-    timestamp DateTime Codec(DoubleDelta, LZ4)
+    Line String,
+    level String,
+    message String,
+    Source String,
+    Timestamp String,
+    Partial String,
+    ContainerName String,
+    ContainerImageName String,
+    ContainerImageId String,
+    Err String
 )
 ENGINE = Kafka
 SETTINGS kafka_broker_list = '192.168.1.40:9091',
     kafka_topic_list = 'service_1',
     kafka_group_name = 'service_1_consumer_1',
-    kafka_format = 'JSONEachRow',
-    kafka_row_delimiter = '\n',
+    kafka_format = 'CSV',
     kafka_max_block_size = 1048576;
 ```
 
@@ -249,7 +264,7 @@ SETTINGS kafka_broker_list = '192.168.1.40:9091',
 # Create a materialized view to transfer data
 # between Kafka and the merge tree table
 CREATE MATERIALIZED VIEW service_1_queue_mv TO service_1 AS
-SELECT line, source, timestamp
+SELECT Line, level, message, Source, Timestamp, Partial, ContainerName, ContainerImageName, ContainerImageId, Err
 FROM service_1_queue;
 ```
 
@@ -292,3 +307,4 @@ To summarize, 3 things that I was not able to do yet includes:
 ## Reference
 
 - https://altinity.com/blog/2020/5/21/clickhouse-kafka-engine-tutorial
+- Alternative Solution: https://medium.com/hackernoon/distributed-log-analytics-using-apache-kafka-kafka-connect-and-fluentd-303330e478af
