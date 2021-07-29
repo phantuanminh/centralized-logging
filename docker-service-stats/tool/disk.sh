@@ -1,0 +1,1 @@
+sudo df -x squashfs --total | awk '{ printf("%-30s|| %-8s||  %-8s||  %-8s|||",$6, $3,$4,$5); }'
