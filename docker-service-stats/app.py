@@ -8,12 +8,10 @@ app = Flask(__name__)
 def index():
     return render_template('index.html')
 
-
 @app.route('/info')
 def info():
-    deviceInfo.get_info()
-    return render_template('index.html')
-
+    info = deviceInfo.get_info()
+    return info
 
 if __name__ == '__main__':
     app.run(debug=True)

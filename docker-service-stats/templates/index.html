@@ -1,8 +1,36 @@
 {% extends "layout.html" %}
 {% block body %}
+
 <div class="container">
-    <div class="row">
-        Hello World!
-    </div>
+  <table>
+ </table>
 </div>
+
+<script type="text/javascript">
+  var interval;
+  function updateInfo() {
+    $.ajax({
+      url: "/info",
+      success: function(res) {
+              var items = [];
+
+              $.each(res, function(key, val) {
+                items.push('<li id="' + key + '">' + key + ' : ' + val + '</li>');    
+              });
+
+              $('table').empty();
+
+              $('<ul/>', {
+                  'class': 'interest-list',
+                  html: items.join('')
+              }).appendTo('table');
+
+              interval = setTimeout(updateInfo, 1000);
+      }
+    });
+  }
+  updateInfo();
+  clearTimeout(interval);
+</script>
+
 {% endblock %}
